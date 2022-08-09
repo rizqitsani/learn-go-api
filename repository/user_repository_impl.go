@@ -29,3 +29,36 @@ func (repository *UserRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, us
 	user.Id = int(id)
 	return user
 }
+
+func (repository *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) []model.User {
+	query := "SELECT * FROM users"
+	rows, err := tx.QueryContext(ctx, query)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	var users []model.User
+	for rows.Next() {
+		user := model.User{}
+		err := rows.Scan(&user.Id, &user.Name)
+		if err != nil {
+			panic(err)
+		}
+		users = append(users, user)
+	}
+
+	return users
+}
+
+func (repository *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) model.User {
+	var user model.User
+
+	query := "SELECT * FROM users WHERE id = ?"
+	err := tx.QueryRowContext(ctx, query, id).Scan(&user.Id, &user.Name)
+	if err != nil {
+		panic(err)
+	}
+
+	return user
+}

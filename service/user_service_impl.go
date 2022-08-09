@@ -11,14 +11,14 @@ import (
 )
 
 type UserServiceImpl struct {
-	repository repository.UserRepository
-	db         *sql.DB
+	userRepository repository.UserRepository
+	db             *sql.DB
 }
 
 func NewUserService(repository repository.UserRepository, db *sql.DB) UserService {
 	return &UserServiceImpl{
-		repository: repository,
-		db:         db,
+		userRepository: repository,
+		db:             db,
 	}
 }
 
@@ -33,7 +33,27 @@ func (service *UserServiceImpl) Create(ctx context.Context, request dto.CreateUs
 		Name: request.Name,
 	}
 
-	user = service.repository.Create(ctx, tx, user)
+	user = service.userRepository.Create(ctx, tx, user)
 
 	return user
+}
+
+func (service *UserServiceImpl) FindAll(ctx context.Context) []model.User {
+	tx, err := service.db.Begin()
+	if err != nil {
+		panic(err)
+	}
+	defer helper.CommitOrRollback(tx)
+
+	return service.userRepository.FindAll(ctx, tx)
+}
+
+func (service *UserServiceImpl) FindById(ctx context.Context, id int) model.User {
+	tx, err := service.db.Begin()
+	if err != nil {
+		panic(err)
+	}
+	defer helper.CommitOrRollback(tx)
+
+	return service.userRepository.FindById(ctx, tx, id)
 }
