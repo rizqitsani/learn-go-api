@@ -11,4 +11,6 @@ type UserService interface {
 	Create(ctx context.Context, request dto.CreateUserDto) model.User
 	FindAll(ctx context.Context) []model.User
 	FindById(ctx context.Context, id int) model.User
+	Update(ctx context.Context, request dto.UpdateUserDto) model.User
+	Delete(ctx context.Context, id int)
 }

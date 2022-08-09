@@ -57,3 +57,28 @@ func (service *UserServiceImpl) FindById(ctx context.Context, id int) model.User
 
 	return service.userRepository.FindById(ctx, tx, id)
 }
+
+func (service *UserServiceImpl) Update(ctx context.Context, request dto.UpdateUserDto) model.User {
+	tx, err := service.db.Begin()
+	if err != nil {
+		panic(err)
+	}
+	defer helper.CommitOrRollback(tx)
+
+	user := service.userRepository.FindById(ctx, tx, request.Id)
+	user.Name = request.Name
+
+	user = service.userRepository.Update(ctx, tx, user)
+
+	return user
+}
+
+func (service *UserServiceImpl) Delete(ctx context.Context, id int) {
+	tx, err := service.db.Begin()
+	if err != nil {
+		panic(err)
+	}
+	defer helper.CommitOrRollback(tx)
+
+	service.userRepository.Delete(ctx, tx, id)
+}

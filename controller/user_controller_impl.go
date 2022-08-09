@@ -60,3 +60,39 @@ func (controller *UserControllerImpl) FindById(writer http.ResponseWriter, reque
 
 	helper.WriteToResponseBody(writer, response)
 }
+
+func (controller *UserControllerImpl) Update(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	updateUserRequest := dto.UpdateUserDto{}
+	helper.ReadFromRequestBody(request, &updateUserRequest)
+
+	id, err := strconv.Atoi(params.ByName("id"))
+	if err != nil {
+		panic(err)
+	}
+
+	updateUserRequest.Id = id
+
+	user := controller.userService.Update(request.Context(), updateUserRequest)
+	response := helper.Response{
+		Code:   http.StatusOK,
+		Status: "success",
+		Data:   user,
+	}
+
+	helper.WriteToResponseBody(writer, response)
+}
+
+func (controller *UserControllerImpl) Delete(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+	id, err := strconv.Atoi(params.ByName("id"))
+	if err != nil {
+		panic(err)
+	}
+
+	controller.userService.Delete(request.Context(), id)
+	response := helper.Response{
+		Code:   http.StatusOK,
+		Status: "success",
+	}
+
+	helper.WriteToResponseBody(writer, response)
+}
