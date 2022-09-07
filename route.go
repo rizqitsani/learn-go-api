@@ -1,6 +1,9 @@
 package main
 
-import "github.com/julienschmidt/httprouter"
+import (
+	"github.com/julienschmidt/httprouter"
+	"github.com/rizqitsani/learn-go-api/exception"
+)
 
 func NewRouter(appController AppController) *httprouter.Router {
 	router := httprouter.New()
@@ -10,6 +13,8 @@ func NewRouter(appController AppController) *httprouter.Router {
 	router.POST("/api/users", appController.userController.Create)
 	router.PUT("/api/users/:id", appController.userController.Update)
 	router.DELETE("/api/users/:id", appController.userController.Delete)
+
+	router.PanicHandler = exception.ErrorHandler
 
 	return router
 }

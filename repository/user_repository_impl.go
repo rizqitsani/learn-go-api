@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/rizqitsani/learn-go-api/model"
 )
@@ -51,16 +52,16 @@ func (repository *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) [
 	return users
 }
 
-func (repository *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) model.User {
+func (repository *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (model.User, error) {
 	var user model.User
 
 	query := "SELECT * FROM users WHERE id = ?"
 	err := tx.QueryRowContext(ctx, query, id).Scan(&user.Id, &user.Name)
 	if err != nil {
-		panic(err)
+		return user, errors.New("user not found")
 	}
 
-	return user
+	return user, nil
 }
 
 func (repository *UserRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, user model.User) model.User {

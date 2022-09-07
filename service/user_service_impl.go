@@ -5,6 +5,7 @@ import (
 	"database/sql"
 
 	"github.com/rizqitsani/learn-go-api/dto"
+	"github.com/rizqitsani/learn-go-api/exception"
 	"github.com/rizqitsani/learn-go-api/helper"
 	"github.com/rizqitsani/learn-go-api/model"
 	"github.com/rizqitsani/learn-go-api/repository"
@@ -55,7 +56,12 @@ func (service *UserServiceImpl) FindById(ctx context.Context, id int) model.User
 	}
 	defer helper.CommitOrRollback(tx)
 
-	return service.userRepository.FindById(ctx, tx, id)
+	user, err := service.userRepository.FindById(ctx, tx, id)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
+	return user
 }
 
 func (service *UserServiceImpl) Update(ctx context.Context, request dto.UpdateUserDto) model.User {
@@ -65,7 +71,11 @@ func (service *UserServiceImpl) Update(ctx context.Context, request dto.UpdateUs
 	}
 	defer helper.CommitOrRollback(tx)
 
-	user := service.userRepository.FindById(ctx, tx, request.Id)
+	user, err := service.userRepository.FindById(ctx, tx, request.Id)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
+
 	user.Name = request.Name
 
 	user = service.userRepository.Update(ctx, tx, user)
@@ -79,6 +89,11 @@ func (service *UserServiceImpl) Delete(ctx context.Context, id int) {
 		panic(err)
 	}
 	defer helper.CommitOrRollback(tx)
+
+	_, err = service.userRepository.FindById(ctx, tx, id)
+	if err != nil {
+		panic(exception.NewNotFoundError(err.Error()))
+	}
 
 	service.userRepository.Delete(ctx, tx, id)
 }
